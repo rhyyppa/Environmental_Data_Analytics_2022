@@ -2,4 +2,4 @@
 
 Course repository for Environmental Data Analytics (ENV 872L) at Duke University, Spring 2022
 
-Name: Reino Hyyppa
+Name: Reino A. Hyyppa 

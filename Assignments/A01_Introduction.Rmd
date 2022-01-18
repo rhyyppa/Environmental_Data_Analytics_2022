@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1: Introduction"
-author: "Student Name"
+author: "Reino Hyyppa"
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -24,13 +24,19 @@ The completed exercise is due on <>.
 
 > Answer: 
 
+Previous to this course, I have taken Applied Data Analysis with John Poulsen, in which we used R. I also have experience with Python, and have take business analysis courses as an undergraduate student.
+
 2. Are there any components of the course about which you feel confident?
 
 > Answer: 
 
+I feel pretty confident with the basics of using R/Rstudio, how to write basic code and develop graphs/charts in R. I also feel comfortable visualizing/initializing data and testing for the assumptions of statistical tests.
+
 3. Are there any components of the course about which you feel apprehensive?
 
 > Answer: 
+
+I am a little iffy on designing experiments and managing large datasets. 
 
 
 ## 2) GitHub
@@ -39,4 +45,5 @@ Provide a link below to your forked course repository in GitHub. Make sure you h
 
 > Answer: 
 
+https://github.com/rhyyppa/Environmental_Data_Analytics_2022.git
 

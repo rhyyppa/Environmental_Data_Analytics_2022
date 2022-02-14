@@ -19,11 +19,12 @@ editor_options:
 The expression function can be used when you want to add mathematical symbols and subscripts mixed with regular letter to labels. 
 
 ```{r}
-Plot_text <-
-ggplot(data=data.frame(x=0,y=0))+
+Plot_text <- ggplot(data=data.frame(x=0,y=0))+
   geom_point(aes(x=x,y=y)) +
   geom_text(x=0,y=0.025,label=expression(paste("Mean is ", mu,",", R^{2},'=0.6')))
 print(Plot_text)
+
+# refer to video to understand why this is not working 
 
 ggsave("./Output/Plot_text.jpg",Plot_text, height = 4, width = 6, units = "in", dpi = 300)
 
@@ -46,6 +47,8 @@ EPAair <- read.csv("./Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv", strin
 EPAair$Date <- as.Date(EPAair$Date, format = "%Y-%m-%d")
 PeterPaul.chem.nutrients$sampledate <- as.Date(PeterPaul.chem.nutrients$sampledate, format = "%Y-%m-%d")
 
+colnames(PeterPaul.chem.nutrients)
+
 ```
 
 
@@ -55,9 +58,22 @@ Exercise: build your own scatterplots of PeterPaul.chem.nutrients
 
 ```{r, fig.height = 3, fig.width = 4, warning = FALSE}
 
+
 # 1. 
+
 # Plot surface temperatures by day of  year. 
+ggplot(filter(PeterPaul.chem.nutrients, depth == 0)) + 
+  geom_point(aes(x=daynum, y=temperature_C, color = year4)) + 
+  facet_wrap('lakename') +
+  ylab('Temperature(C)')
+  
+
+# facet wrap looks at all the unique values in the column and 
+
+
 # Color your points by year, and facet by lake in two rows.
+
+
 # Change the ylab name
 
 
@@ -66,6 +82,12 @@ Exercise: build your own scatterplots of PeterPaul.chem.nutrients
 # Change the size of your point to 0.5
 # Change the color palette to magma and play with direction (+- 1), which one makes more sense?
 # Change x axis to include marker/labels every 5 years
+
+ggplot(PeterPaul.chem.nutrients) +
+  geom_point(aes(x=sampledate, y=temperature_C, color=depth), size=0.5) +
+  scale_color_viridis(option='magma', direction = -1) +
+  scale_x_date(date_breaks = "5 years", date_labels = '%Y)
+  
 
 
 
@@ -82,6 +104,10 @@ Exercise: Plot relationships between air quality measurements
 # Make the points 50 % transparent
 # Add a line of best fit for the linear regression of these variables.
 
+colnames(EPAir)
+
+ggplot(EPAir) +
+  geom_point(aes(x= AQI))
 
 
 

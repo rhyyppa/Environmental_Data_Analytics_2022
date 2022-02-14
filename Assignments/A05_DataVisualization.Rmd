@@ -1,6 +1,6 @@
 ---
 title: "Assignment 5: Data Visualization"
-author: "Student Name"
+author: "Reino Hyyppa"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -10,17 +10,6 @@ editor_options:
 ## OVERVIEW
 
 This exercise accompanies the lessons in Environmental Data Analytics on Data Visualization 
-
-## Directions
-1. Change "Student Name" on line 3 (above) with your name.
-2. Work through the steps, **creating code and output** that fulfill each instruction.
-3. Be sure to **answer the questions** in this assignment document.
-4. When you have completed the assignment, **Knit** the text and code into a single PDF file.
-5. After Knitting, submit the completed exercise (PDF file) to the dropbox in Sakai. Add your last name into the file name (e.g., "Fay_A05_DataVisualization.Rmd") prior to submission.
-
-The completed exercise is due on Monday, February 14 at 7:00 pm.
-
-
 
 ## Set up your session 
 1. Set up your session. Verify your working directory and load the tidyverse 
@@ -33,8 +22,28 @@ the processed data file for the Niwot Ridge litter dataset (use the [`NEON_NIWO_
 
 ```{r}
 #1 
+# check wd
+getwd()
+
+# load packages
+library(tidyverse)
+#install.packages("cowplot")
+library(cowplot)
+
+# initialize data set
+PeterPaul_chem <- read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
+
+Litter <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
 
 #2 
+
+# check date class
+
+class(Litter$collectDate)
+Litter$collectDate <- as.Date(Litter$collectDate, format = "%Y-%m-%d")
+
+class(PeterPaul_chem$sampledate)
+PeterPaul_chem$sampledate <- as.Date(PeterPaul_chem$sampledate, format = "%Y-%m-%d")
 
 ```
 ## Define your theme
@@ -42,6 +51,13 @@ the processed data file for the Niwot Ridge litter dataset (use the [`NEON_NIWO_
 
 ```{r}
 #3
+
+# create a new plot theme
+new_theme <- theme_classic(base_size = 12) +
+  theme(axis.text = element_text(color = "black"),
+  legend.position = "right")
+
+theme_set(new_theme)
 
 ```
 
@@ -52,7 +68,13 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 
 ```{r}
 #4
-
+PhPh <-
+  ggplot(PeterPaul_chem, aes(x = tp_ug, y = po4, color = lakename)) +
+  geom_point() + 
+  geom_smooth(method = lm, color = "black") + 
+  xlim(0, 100) +
+  ylim(0, 50)
+print(PhPh)
 ```
 
 
@@ -61,23 +83,76 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 ```{r}
 #5
 
+# create plot with legend
+create_legend <- 
+  ggplot(PeterPaul_chem) +
+  geom_boxplot(aes(x= as.factor(month), y = temperature_C, color = lakename)) + 
+  theme(legend.position = "bottom")
+
+# create boxplot of temperature w/out legend
+temp_plot <- 
+  ggplot(PeterPaul_chem) +
+  geom_boxplot(aes(x= as.factor(month), y = temperature_C, color = lakename)) +
+  theme(legend.position = "none")
+
+# create boxplot of TP w/out legend
+TP_plot <- 
+   ggplot(PeterPaul_chem) +
+  geom_boxplot(aes(x= as.factor(month), y = tp_ug, color = lakename)) +
+  theme(legend.position = "none")
+
+# create boxplot of TN w/out legend
+TN_plot <- 
+  ggplot(PeterPaul_chem) +
+  geom_boxplot(aes(x= as.factor(month), y = tn_ug, color = lakename)) +
+  theme(legend.position = "none")
+
+# combine three plots (temp, TP, TN) using plot_grid
+combined_plot <-
+  plot_grid(temp_plot, TP_plot, TN_plot, nrow = 1, 
+            labels = c("Temperature", "TP", "TN"), rel_heights = c(3, 0.3))
+
+# create legend
+plot_legend <- get_legend(create_legend)
+
+# plot three plots with a master legend
+final_plot <-
+  plot_grid(combined_plot, plot_legend,
+            nrow =2, rel_heights = c(3, 0.3))
+
+# check results
+print(final_plot)
 ```
 
 Question: What do you observe about the variables of interest over seasons and between lakes? 
 
-> Answer: 
+> Answer: Temperatures for each of the two lakes varies in relationship with one another over the different seasons, getting warmer during the summer months, and cooling off in the fall. TP averages differ more for Peter Lake than Paul Lake over the seasons with a larger spread in the data for Paul Lake. Based on the boxplot for TN, levels for this variable have less variance for the two lakes than TP. However, there seems to larger swings in TN levels for Peter Lake than Paul Lake. 
 
 6. [Niwot Ridge] Plot a subset of the litter dataset by displaying only the "Needles" functional group. Plot the dry mass of needle litter by date and separate by NLCD class with a color aesthetic. (no need to adjust the name of each land use)
 
 7. [Niwot Ridge] Now, plot the same plot but with NLCD classes separated into three facets rather than separated by color. 
 
 ```{r}
+
 #6
+# plot the dry mass of needle litter by date
+needle_plot <- 
+  ggplot(subset(Litter, functionalGroup == "Needles"),
+         aes(x = collectDate, y = dryMass, color = nlcdClass)) +
+  geom_point()
+print(needle_plot)
+
 
 #7
-
+# separate needle litter into three different facets
+needle_plot_faceted <- 
+  ggplot(subset(Litter, functionalGroup == "Needles"),
+         aes(x = collectDate, y = dryMass)) +
+  geom_point() +
+  facet_wrap(vars(nlcdClass), nrow = 3)
+print(needle_plot_faceted)
 
 ```
 Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
 
-> Answer:
+> Answer: I find it much easier to distinguish between different functional groups using the facet method. Rather than plotting all three types of needles on the same plot, the facet method plots each type of needle on a different plot. Then, you can compare the body mass for each needle type more easily and it is more visually appealing.  

@@ -21,7 +21,7 @@ Effective data visualization depends on purposeful choices about graph types. Th
 ```{r, message = FALSE, warning = FALSE}
 getwd()
 library(tidyverse)
-#install.packages("ggridges")
+install.packages("ggridges")
 library(ggridges)
 
 PeterPaul.chem.nutrients <- 
@@ -81,11 +81,12 @@ Here are some commonly used aesthetic types that can be manipulated in ggplot:
 ggplot(EPAair, aes(x = Date, y = Ozone)) + 
   geom_point()
 
+# breaking up the same plot into multiple lines of code
 O3plot <- ggplot(EPAair) +
   geom_point(aes(x = Date, y = Ozone))
 print(O3plot)
 
-# Fix this code
+# Fix this code, you need to specify color outsie of the paranthesis with variables, b/c otherwise, R is reading color in as a variable
 O3plot2 <- ggplot(EPAair) +
   #geom_point(aes(x = Date, y = Ozone, color = "blue"))
   geom_point(aes(x = Date, y = Ozone), color = "blue")
@@ -98,7 +99,7 @@ PMplot <-
   geom_point()
 print(PMplot)
 
-# Separate plot with facets
+# Separate plot with facets, use facets to separate out your graph into multiple plots for better visualization
 PMplot.faceted <-
   ggplot(EPAair, aes(x = Month, y = PM2.5, shape = as.factor(Year))) +
   geom_point() +
@@ -134,6 +135,8 @@ lightvsDO <-
   geom_point()
 print(lightvsDO)
 
+# this is a poor visuzliaztion of the data set because you have two outliers --> adjust axes
+
 # Adjust axes
 lightvsDOfixed <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = irradianceWater, y = dissolvedOxygen)) +
@@ -141,6 +144,8 @@ lightvsDOfixed <-
   xlim(0, 250) +
   ylim(0, 20)
 print(lightvsDOfixed)
+
+# change the max value 
 
 # Depth in the fields of limnology and oceanography is on a reverse scale
 tempvsdepth <- 

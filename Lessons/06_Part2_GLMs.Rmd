@@ -1,4 +1,4 @@
----
+ ---
 title: "6: Part 2 - Generalized Linear Models"
 author: "Environmental Data Analytics | John Fay and Luana Lima | Developed by Kateri Salk"
 date: "Spring 2022"

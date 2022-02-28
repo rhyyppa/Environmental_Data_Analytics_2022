@@ -1,6 +1,6 @@
 ---
 title: "Assignment 6: GLMs (Linear Regressios, ANOVA, & t-tests)"
-author: "Student Name"
+author: "Reino Hyyppa"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -26,12 +26,27 @@ The completed exercise is due on Monday, February 28 at 7:00 pm.
 2. Build a ggplot theme and set it as your default theme.
 
 ```{r setup}
-#1
+# check wd
+getwd()
 
+# load packages
+#install.packages("lubridate")
+library(lubridate)
+library("tidyverse")
+#install.packages("agricolae")
+library("agricolae")
 
-#2
+#initialize data
+PeterPaulChem <- read.csv("./Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv", header= TRUE, stringsAsFactors = TRUE)
 
+# format date
+PeterPaulChem$sampledate <- as.Date(PeterPaulChem$sampledate, format = "%m/%d/%y")
 
+# create ggplot theme
+ggtheme <- theme_classic(base_size = 12) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+theme_set(ggtheme) # set theme
 ```
 
 ## Simple regression
@@ -39,8 +54,8 @@ Our first research question is: Does mean lake temperature recorded during July 
 
 3. State the null and alternative hypotheses for this question:
 > Answer:
-H0: 
-Ha: 
+H0: Mean lake temperature recorded during July does not change with depth across all lakes.
+Ha: Meal lake temperature recorded during July does change with depth across all lakes.
 
 
 4.  Wrangle your NTL-LTER dataset with a pipe function so that the records meet the following criteria: 
@@ -51,16 +66,25 @@ Ha:
 5. Visualize the relationship among the two continuous variables with a scatter plot of temperature by depth. Add a smoothed line showing the linear model, and limit temperature values from 0 to 35 °C. Make this plot look pretty and easy to read.
 
 ```{r scatterplot}
-#4
-
-
-#5
-
-
+# wrangle data
+PeterPaulJuly <- PeterPaulChem %>%
+  mutate(month = month(sampledate)) %>%
+  filter(month == "7") %>%
+  select(`lakename`, `year4`, `daynum`, `depth`, `temperature_C`) %>%
+  na.omit()
+  
+# scatter plot of temp by depth
+TDplot <- ggplot(PeterPaulJuly, aes(x = depth, y = temperature_C)) +
+  geom_smooth(method = "lm") +
+  ylim(0, 35) + 
+  geom_point()
+print(TDplot)
 ```
 
 
-6. Interpret the figure. What does it suggest with regards to the response of temperature to depth? Do the distribution of points suggest about anything about the linearity of this trend?
+# 6. Interpret the figure. What does it suggest with regards to the response of temperature to depth? Do the distribution of points suggest about anything about the linearity of this trend?
+
+# The downward slope of this graph suggests that there is a negative relationship between temperature and depth. As depth increases the temperature of the water decreases. However, the points are not evenly distributed around the the smoothed line, showing that there is not a 1:1 relationship between temperature and depth. 
 
 > Answer: 
 
@@ -68,16 +92,23 @@ Ha:
 7. Perform a linear regression to test the relationship and display the results
 
 ```{r linear.regression}
-#7
+# run linear model
+temp_regression <- lm(data = PeterPaulJuly, temperature_C ~ depth)
+summary(temp_regression)
 
+
+# diplay diagnostic plots 
+par(mfrow = c(2,2))
+plot(temp_regression)
+par(mfrow = c(1,1))
 
 ```
 
 
 8. Interpret your model results in words. Include how much of the variability in temperature is explained by changes in depth, the degrees of freedom on which this finding is based, and the statistical significance of the result. Also mention how much temperature is predicted to change for every 1m change in depth. 
 
-> Answer:
-
+> Answer: The results of this model conclude that there is a significant relationship between lake temperature and lake depth. The test produce a p-value of < 2.2e-16 which is less than the alpha of 0.05. Therefore, we reject the null hypothesis and conclude that lake depth does have a significant effect on lake temperature. Change in lake depth accounts for 73.87% of the variance in lake temperature with a degrees of freedom of 9726.
+The regression equation for the linear model is AGBH.Mg.ha = 21.96 - 1.95 * depth. This means that for 1m increase in lake depth, the lake temperature decreases by 1.95 degrees celsius.
 
 ---
 
@@ -90,20 +121,22 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 10. Run a multiple regression on the recommended set of variables. 
 
 ```{r temperature.model}
-#9
+
+# create full model
+TPAIC <- lm(data = PeterPaulJuly, temperature_C ~ depth + year4 + daynum)
+
+# run AIC
+step(TPAIC)
 
 
-
-#10
-
+# run multiple regression on full model
+summary(TPAIC)
 
 ```
 
 11. What is the final set of explanatory variables that the AIC method suggests we use to predict temperature in our multiple regression? How much of the observed variance does this model explain? Is this an improvement over the model using only depth as the explanatory variable?
 
-> Answer: 
-
-
+> Answer: Using the AIC to compute a stepwise regression, I determined that the full model containing year4, daynum, and depth is the best fit model. This model accounts for 74.1% of the variation in temperature during the month of July. This model provides a slightly better fit of the data than using only depth as an explanatory variable. 
 
 ---
 ## Analysis of Variance
@@ -111,41 +144,57 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 12. Now we want to see whether the different lakes have, on average, different temperatures in the month of July. Run an ANOVA test to complete this analysis. (No need to test assumptions of normality or similar variances.) Create two sets of models: one expressed as an ANOVA models and another expressed as a linear model (as done in our lessons).
 
 ```{r anova.model}
-#12
 
+# one-way ANOVA test
+PeterPaul.anova <- aov(data = PeterPaulJuly, temperature_C ~ lakename)
+summary(PeterPaul.anova)
 
+# linear model 
+PeterPaul.anova2 <- lm(data=PeterPaulJuly, temperature_C ~ lakename)
+summary(PeterPaul.anova2)
 ```
 
 13. Is there a significant difference in mean temperature among the lakes? Report your findings. 
 
-> Answer: 
-
-
+> Answer: Both the one-way ANOVA test and linear model produce a p-value of <2e-16 which is our alpha of 0.05. Therefore, we reject the null hypothesis and conclude that there is a significant difference in the mean lake temperature among the lakes.
 
 14. Create a graph that depicts temperature by depth, with a separate color for each lake. Add a geom_smooth (method = "lm", se = FALSE) for each lake. Make your points 50 % transparent. Adjust your y axis limits to go from 0 to 35 degrees. Clean up your graph to make it pretty. 
 
 ```{r scatterplot.2}
-#14.
-
+# plot of temperature by depth, separate by lakes
+TDplot <- 
+  ggplot(PeterPaulJuly, aes(x = depth, y = temperature_C, color = lakename)) +
+  ylim(0, 35) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "lm", se = FALSE) +
+  ylab("Lake Temperature (celsius)") +
+  xlab("Lake Depth (m)") +
+  ggtitle("Lake Temperature by Depth") + 
+  theme(plot.title = element_text(hjust = 0.5)) 
+print(TDplot)
 
 ```
 
 15. Use the Tukey's HSD test to determine which lakes have different means.
 
 ```{r tukey.test}
-#15
+#15 run post-hoc test
+TukeyHSD(PeterPaul.anova)
 
+# group by mean temperature
+lake_groups <- HSD.test(PeterPaul.anova, "lakename", group = TRUE)
+lake_groups
 
 ```
 
 16.From the findings above, which lakes have the same mean temperature, statistically speaking, as Peter Lake? Does any lake have a mean temperature that is statistically distinct from all the other lakes?
 
->Answer:
+>Answer: The results of the HSD.test conclude that the mean temperatures for Ward and Paul Lake are not statistically different from Peter Lake. It does not appear that any of the lakes have a mean temperature that is distinct from the other lakes.
 
  
 
 17. If we were just looking at Peter Lake and Paul Lake. What's another test we might explore to see whether they have distinct mean temperatures? 
 
->Answer: 
+>Answer: You could use a one-sided t-test to determine if there's a differene in mean lake temperature for Peter and Paul Lakes.
 
 

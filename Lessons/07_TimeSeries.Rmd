@@ -13,6 +13,57 @@ editor_options:
 2. Explore the components of times series: trend, seasonal, random
 3. Learn how to perform stationarity test
 
+## Recording notes
+
+Stationary Data -- a time series variable exhibiting no significant upward or downward trend over time
+Nonstationary Data == a time series variable exhibiting a significant upward or downward trend over time
+Seasonal Data -- A time series variable exhibiting a repeating pattern or regular intervals over time
+
+Autocorrelation Function
+Correleation: is the joint variability of two variables
+
+Autocorrelation is a measure of dependence between two adjacent values of the same variable.
+-> it gives information about the dependence strucuture of a time series
+
+
+Trend Component
+1. Long-term tendency 
+-> Increase (upward movement), or
+-> Decrease (downward movement)
+
+2. Trend can be linear or non-linear 
+
+Stochastic vs. deterministic trends
+
+Deterministic trends can be either linear or polynomial
+Detrending is accompanied by running a regression and obtaining the series of residuals. The residuals will give you the detrended series.
+This is call trend-stationarity
+
+A stochastic trend is a trend that changes overtime, in other words, is a series that is called difference-stationarity.
+Detrending a stochastic trend requires differencing the series.
+
+
+Stationarity tests
+
+1. Mann-Kendall Test
+-> commonly employed to detect deterministic trends in series of environmental data, climate data, or hydrological data
+-> cannot be applied to stationary data
+-> Ho = stationary & Ha = follows a trend
+-> the test will check the magnitude of S and its sginificance based on the number of observations
+-> In other words, the bigger the # of observations, the higher S will need to be statistically significant
+
+2. Spearman's Rank Correlation Coefficient
+-> a statistical measure of the strength of a monotonic relationship
+-> the relationship does NOT need to be linear
+-> so if one variable increases and so does the other it does not matter the proportion of the increase
+-> if the correlation is close to 0, then there is no trend
+-> cor() or cor.test() from package "stats"
+
+3. Dick-Fuller Test
+-> To verify if there is a stochastic trend in the data or unit root in the time series
+-> Ho = contains a unit root, Ha = stationary 
+-> for a more general test (more legs), you can use the Augmented Dickey-Fuller (ADF) test, using adf.test() in package tseries.
+
 ## Set up
 
 Today we will work with two datasets. The USGS dataset on discharge at the Eno River and a new dataset we haven't explored yet on wind speed. The data file is available at "./Data/Raw/Wind_Speed_PortArthurTX.csv". It contains average wind speed in monthly time steps (elevation = 5 meters). The data is available from NOAA National Centers for Environmental Information (NCEI) [here][https://www.ncdc.noaa.gov/cdo-web/datasets#GSOM].
@@ -27,7 +78,7 @@ library(trend)
 library(zoo)
 #install.packages("Kendall")
 library(Kendall)
-#install.packages("tseries")
+install.packages("tseries")
 library(tseries)
 
 # Set theme
@@ -69,6 +120,8 @@ Time series datasets come with several caveats, which need to be addressed in or
 * **Seasonality**: seasonal patterns in variables occur at regular intervals, impeding clear interpretation of a monotonic (unidirectional) trend.
 * **Heteroscedasticity**: The variance of the time series is not constant over time
 * **Covariance**: the covariance of the time series is not constant over time
+
+
 
 ## Handling data gaps and missing data. Example: Eno River Discharge
 
@@ -116,6 +169,7 @@ Note: time series objects must be equispaced. In our case, we have daily data wi
 
 ```{r}
 EnoDischarge.late_ts <- ts(EnoDischarge.late$discharge.mean, start = c(1985,1), frequency = 365)
+head(EnoDischarge.late_ts)
 ```
 
 The `stl` function decomposes the time series object into its component parts. We must specify that the window for seasonal extraction is either "periodic" or a specific number of at least 7. The decomposition proceeds through a loess (locally estimated scatterplot smoothing) function.
@@ -224,6 +278,7 @@ f_year <- year(first(wind_data_clean$DATE))
 wind_data_ts <- ts(wind_data_clean$AWND.clean,
                    start=c(f_year,f_month),
                    frequency=12) 
+plot(wind_data_ts)
 
 #decompose
 wind_data_decomp <- stl(wind_data_ts,s.window = "periodic")

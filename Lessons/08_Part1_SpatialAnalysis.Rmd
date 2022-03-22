@@ -51,7 +51,7 @@ sf::sf_use_s2(FALSE)
 The `sf` package enables a new data type to be included in our data frames - the **geometry** data type. Geometries are comprised of coordinate pairs that form to create **geometric objects**. These can be:
 -   **points** - created from a single coordinate pair; 
 -   **lines** - created from a sequence of coordinate pairs representing the start, the end, and any vertex along the line (i.e. where it changes direction); and
--   **polygons** - also created from a sequence of coordinate pairs, but where the first and last pair are in the same location, thus closing the shape and defining an area. 
+-   **polygons** - also created from a sequence of coordinate pairs, but where the first and last pair are in the same location, thus closing the shape and defining an area.   
 
 These geometries represent features located in geographic space. (There are other geometry types, with a full set listed [here](https://bit.ly/3hrPcZO). However, to keep things simple, we'll focus on points, lines, and polygons.)
 
@@ -116,9 +116,18 @@ EPAair.sites <- EPAair %>%
 #Convert to a spatial dataframe
 EPAair.sf <- EPAair.sites %>% 
   st_as_sf(coords = c('SITE_LONGITUDE','SITE_LATITUDE'),
-           crs=4326)
+           crs=4326) #coordinate reference system
 
 #View the data using the methods above...
+
+#View using sf plot
+plot(EPAair.sf["Site.Name"],pch=16)
+
+#View using ggplot
+ggplot(data=EPAair.sf) + geom_sf()
+
+#View using mapview
+mapview(EPAair.sf)
 
 ```
 
@@ -131,7 +140,7 @@ class(sfg_GraingerHall)
 mapview(sfg_GraingerHall)
 
 #Upgrade to a simple feature geometry column by adding a crs 
-sfc_GraingerHall <- st_sfc(sfg_GraingerHall,crs=4326)
+sfc_GraingerHall <- st_sfc(sfg_GraingerHall,crs=4326) # coordinate reference system
 class(sfc_GraingerHall)
 mapview(sfc_GraingerHall)
 

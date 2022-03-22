@@ -46,7 +46,9 @@ getwd()
 #Import libraries
 library(tidyverse)
 library(lubridate)
+#install.packages("sf")
 library(sf)
+#install.packages("mapview")
 library(mapview)
 library(RColorBrewer)
 ```
@@ -76,6 +78,8 @@ st_crs(epa_pm25_sites_sf)$epsg
 #Plot the data
 ggplot(data=epa_pm25_sites_sf) +
   geom_sf()
+
+mapview(epa_pm25_sites_sf)
 ```
 
 ## 2.2 Reading shapefiles into R with `sf`
@@ -118,17 +122,22 @@ mapView(counties_sf, zcol = "AWATER")
 ```{r read HUCs shapefile}
 #Read the shapefile into an sf dataframe named "huc8_sf"
 
+huc8_sf <- st_read("./Data/Spatial/NCHUC8.shp")
 
 #Reveal the columns
 
+colnames(huc8_sf)
 
 #Check the CRS
 
+st_crs(huc8_sf) 
 
 #Examine some records
 
 
 #View the data as a map, colored by the acreage in each
+
+mapView(huc8_sf, zcol = "ACRES")
 
 
 ```
@@ -140,10 +149,12 @@ mapView(counties_sf, zcol = "AWATER")
 ```{r Select the Upper Neuse HUC 8}
 #Read the shapefile into an sf dataframe
 
-
+upperNeuse_sf <- st_read("./Data/Spatial/NCHUC8.shp") %>%
+  filter(SUBBASIN == "Upper Neuse")
 
 #Create a map
-
+mapview(huc8_sf, col.regions = "orange") +
+  mapview(upperNeuse_sf, col.regions = "purple")
 
 ```
 
